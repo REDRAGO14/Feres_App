@@ -17,16 +17,21 @@ public class FeresApp{
     }
 
     public void processBooking(Vehicle vehicle, String passengerName){
-        System.out.println("\n🎉 RIDE CONFIRMED!");
+        System.out.println("\n RIDE CONFIRMED!");
         System.out.println("Passenger: " + passengerName);
         System.out.println("Driver: " + vehicle.getDriverName());
-        System.out.println("Payment: Cash on Arrival");
+        System.out.println("Car Plate: " + vehicle.getPlateNumber());
+        System.out.println("Note: Single passenger trip");
     }
 
-    public void processBooking(Vehicle vehicle, String passengerName, String transactionId){
-        System.out.println("\n🎉 RIDE CONFIRMED!");
+    public void processBooking(Vehicle vehicle, String passengerName, int passengerCount){
+        System.out.println("\n RIDE CONFIRMED!");
         System.out.println("Passenger: " + passengerName);
-        System.out.println("Driver: " + vehicle.getDriverName());
-        System.out.println("Transaction ID: " + transactionId);
+        System.out.println("Driver Name: " + vehicle.getDriverName());
+        System.out.println("Car Plate: " + vehicle.getPlateNumber());
+        if (passengerCount > 4) {
+            System.out.println("Note: Large group! Extra seating confirmed.");
+        }
     }
+
 }
