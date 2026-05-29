@@ -1,4 +1,4 @@
-name: Feres CLI Review Pipeline
+name: Feres PR Review Pipeline
 
 on:
   push:
@@ -11,37 +11,65 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
-  build-and-test:
+  review-and-test:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 21
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
-          java-version: '21'
+          java-version: '25'
           distribution: 'temurin'
 
-      - name: Compile CLI Core
+      - name: Compile Project
         run: |
           mkdir -p out
           javac -d out src/feres/*.java
-          echo "✅ Compilation Successful: CLI OOP Structure Verified."
+          echo "✅ Compilation Passed: Code is syntactically correct."
 
-      - name: Run Polymorphism Verification
+      - name: Run Unit Tests
         run: |
-          # This verifies that your superclass references and overriding are active
-          java -cp out feres.Main <<EOF
-          4
+          # We create one simple Test class to verify the core logic
+          cat <<EOF > src/feres/FeresTest.java
+          package feres;
+          public class FeresTest {
+              public static void main(String[] args) {
+                  System.out.println("Running Unit Tests...");
+          
+                  // Test 1: Polymorphism & Fare Calculation
+                  Vehicle v = new CargoRide("AA-1", "Biruk", 10.0, 50.0);
+                  if (v.calculateFare(10) > 100.0) {
+                      System.out.println("✅ Test 1 Passed: Polymorphism detected.");
+                  } else {
+                      System.out.println("❌ Test 1 Failed!");
+                      System.exit(1);
+                  }
+
+                  // Test 2: Encapsulation
+                  Vehicle v2 = new Vehicle("AA-2", "Henok", -5.0);
+                  if (v2.getRatePerKm() > 0) {
+                      System.out.println("✅ Test 2 Passed: Encapsulation logic active.");
+                  } else {
+                      System.out.println("❌ Test 2 Failed!");
+                      System.exit(1);
+                  }
+          
+                  System.out.println("All Tests Passed Successfully.");
+              }
+          }
           EOF
-          echo "✅ Runtime Check: Main class executed and exited successfully."
+          javac -d out -cp out src/feres/FeresTest.java
+          java -cp out feres.FeresTest
 
       - name: Automated Feedback
         if: success()
-        run: echo "PR Review Passed. All core OOP requirements (Inheritance, Polymorphism) are structurally sound."
+        run: |
+          echo "### 🚀 Automated PR Review Passed" >> $GITHUB_STEP_SUMMARY
+          echo "The code has passed compilation and core OOP unit tests." >> $GITHUB_STEP_SUMMARY
 
       - name: Failure Notification
         if: failure()
-        run: echo "❌ PR Review Failed. Please check for compilation errors in your CLI logic."
+        run: echo "❌ PR Review Failed. Check the logs for errors."
