@@ -63,6 +63,28 @@ jobs:
           EOF
           javac -d out -cp out src/feres/FeresTest.java
           java -cp out feres.FeresTest
+      - name: Validate Naming Conventions
+        run: |
+          echo "Checking Java naming conventions..."
+          INVALID_FILES=0
+          
+          # Loop through all Java files in the feres package
+          for file in src/feres/*.java; do
+            filename=$(basename "$file")
+          
+            # Regex check: Does the filename start with a Lowercase letter?
+            if [[ $filename =~ ^[a-z] ]]; then
+              echo "❌ ERROR: $filename does not follow PascalCase (e.g., should be Main.java, not main.java)"
+              INVALID_FILES=$((INVALID_FILES + 1))
+            fi
+          done
+
+          if [ $INVALID_FILES -gt 0 ]; then
+            echo "Total naming errors found: $INVALID_FILES"
+            exit 1
+          else
+            echo "✅ All files follow standard Java naming conventions."
+          fi
 
       - name: Automated Feedback
         if: success()
